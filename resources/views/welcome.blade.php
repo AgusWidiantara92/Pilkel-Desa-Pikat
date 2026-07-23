@@ -90,8 +90,19 @@
                 <p class="text-sm text-gray-500 mt-1">Masukkan NIK KTP elektronik Anda di bawah ini</p>
             </div>
 
-            <!-- Form Search (Tanpa logic backend sesuai instruksi) -->
-            <form action="#" method="GET" class="space-y-5">
+            <!-- Session Alert Rate Limiter / General Error -->
+            @if(session('error'))
+                <div class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex items-start">
+                    <svg class="w-5 h-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
+            <!-- Form Search -->
+            <form action="{{ route('dpt.search') }}" method="POST" class="space-y-5">
+                @csrf
                 <div>
                     <label for="nik" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                         Nomor Induk Kependudukan (NIK)
@@ -107,16 +118,27 @@
                             name="nik" 
                             id="nik" 
                             maxlength="16"
+                            value="{{ old('nik', $searchedNik ?? '') }}"
                             placeholder="Contoh: 5105011508900001" 
-                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200"
+                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border @error('nik') border-red-500 @else border-gray-300 @enderror rounded-xl text-gray-900 placeholder-gray-400 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200"
                         >
                     </div>
-                    <p class="mt-2 text-xs text-gray-400 flex items-center">
-                        <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        NIK terdiri dari 16 digit angka sesuai KTP / Kartu Keluarga
-                    </p>
+
+                    @error('nik')
+                        <p class="mt-2 text-xs text-red-600 font-medium flex items-center">
+                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @else
+                        <p class="mt-2 text-xs text-gray-400 flex items-center">
+                            <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            NIK terdiri dari 16 digit angka sesuai KTP / Kartu Keluarga
+                        </p>
+                    @enderror
                 </div>
 
                 <!-- Tombol Merah -->
@@ -130,6 +152,77 @@
                     </svg>
                 </button>
             </form>
+
+            <!-- HASIL PENCARIAN: DITEMUKAN -->
+            @if(isset($voter))
+                <div class="mt-8 pt-6 border-t border-gray-100 space-y-4 animate-fade-in">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                TERDAFTAR DALAM DPT
+                            </span>
+                            <span class="text-xs font-semibold text-gray-500">Status: {{ ucfirst($voter['status']) }}</span>
+                        </div>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                                <span class="text-gray-500">NIK (Masked):</span>
+                                <span class="font-bold text-gray-900 font-mono">{{ $voter['nik_masked'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                                <span class="text-gray-500">Nama Pemilih:</span>
+                                <span class="font-bold text-gray-900">{{ $voter['nama_masked'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                                <span class="text-gray-500">Banjar / Dusun:</span>
+                                <span class="font-semibold text-gray-800">{{ $voter['dusun'] }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1.5 border-b border-emerald-100">
+                                <span class="text-gray-500">TPS Terdaftar:</span>
+                                <span class="font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-lg">
+                                    {{ $voter['nomor_tps'] }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center pt-1.5">
+                                <span class="text-gray-500">Lokasi TPS:</span>
+                                <span class="font-semibold text-gray-800 text-right">{{ $voter['nama_lokasi_tps'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- HASIL PENCARIAN: TIDAK DITEMUKAN (TAMPILKAN TOMBOL WHATSAPP) -->
+            @if(isset($notFound) && $notFound)
+                <div class="mt-8 pt-6 border-t border-gray-100 space-y-4 animate-fade-in">
+                    <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
+                        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-bold text-red-900 mb-1">NIK Tidak Ditemukan</h3>
+                        <p class="text-xs text-red-700 mb-4">
+                            Data NIK <span class="font-mono font-bold">{{ $searchedNik }}</span> belum terdaftar di DPT Desa Pikat atau terdapat kendala data.
+                        </p>
+
+                        <!-- Tombol WhatsApp Panitia -->
+                        <a 
+                            href="{{ $whatsappUrl }}" 
+                            target="_blank" 
+                            class="inline-flex items-center justify-center w-full py-3.5 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/50 transition-all duration-200"
+                        >
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                            </svg>
+                            <span>Hubungi Panitia via WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+            @endif
 
             <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                 <span class="flex items-center">
