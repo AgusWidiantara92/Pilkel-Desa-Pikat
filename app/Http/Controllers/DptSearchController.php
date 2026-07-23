@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Voter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class DptSearchController extends Controller
 {
@@ -16,11 +18,11 @@ class DptSearchController extends Controller
     }
 
     /**
-     * Logic Pencarian DPT berdasarkan NIK
+     * Logic Pencarian DPT (Optimasi Query & Robust Error Handling)
      */
     public function search(Request $request)
     {
-        // 1. Validasi NIK 16 digit angka
+        // 1. Validasi & Sanitasi Input NIK
         $request->validate([
             'nik' => ['required', 'digits:16', 'numeric'],
         ], [
@@ -29,38 +31,53 @@ class DptSearchController extends Controller
             'nik.numeric' => 'NIK hanya boleh berisi karakter angka.',
         ]);
 
-        $inputNik = trim($request->input('nik'));
+        $inputNik = trim(strip_tags($request->input('nik')));
 
-        // 2. Query Database Voter dengan Relasi TPS
-        $voter = Voter::with('tps')->where('nik', $inputNik)->first();
+        try {
+            // 2. Optimasi Query: Select Hanya Kolom yang Dibutuhkan & Eager Loading Specific Fields
+            $voter = Voter::select(['id', 'nik', 'nama', 'dusun', 'tps_id', 'status', 'keterangan'])
+                ->with(['tps' => function ($query) {
+                    $query->select(['id', 'nomor_tps', 'nama_lokasi']);
+                }])
+                ->where('nik', $inputNik)
+                ->first();
 
-        // 3. Jika Pemilih Ditemukan
-        if ($voter) {
-            $maskedVoter = [
-                'nik_masked' => $this->maskNik($voter->nik),
-                'nama_masked' => $this->maskName($voter->nama),
-                'dusun' => $voter->dusun ?? 'Desa Pikat',
-                'nomor_tps' => $voter->tps->nomor_tps ?? 'TPS -',
-                'nama_lokasi_tps' => $voter->tps->nama_lokasi ?? 'Lokasi TPS',
-                'status' => $voter->status,
-                'keterangan' => $voter->keterangan ?? 'Terdaftar dalam DPT',
-            ];
+            // 3. Jika Pemilih Ditemukan
+            if ($voter) {
+                $maskedVoter = [
+                    'nik_masked' => $this->maskNik($voter->nik),
+                    'nama_masked' => $this->maskName($voter->nama),
+                    'dusun' => $voter->dusun ?? 'Desa Pikat',
+                    'nomor_tps' => $voter->tps->nomor_tps ?? 'TPS -',
+                    'nama_lokasi_tps' => $voter->tps->nama_lokasi ?? 'Lokasi TPS',
+                    'status' => $voter->status,
+                    'keterangan' => $voter->keterangan ?? 'Terdaftar dalam DPT',
+                ];
+
+                return view('welcome', [
+                    'voter' => $maskedVoter,
+                    'searchedNik' => $inputNik,
+                ]);
+            }
+
+            // 4. Jika Pemilih Tidak Ditemukan -> Siapkan Link WhatsApp Panitia
+            $whatsappMessage = rawurlencode("Halo Panitia Pilkel Desa Pikat, NIK saya ({$inputNik}) belum terdaftar dalam DPT. Mohon dibantu pengecekannya.");
+            $whatsappUrl = "https://wa.me/6281234567890?text={$whatsappMessage}";
 
             return view('welcome', [
-                'voter' => $maskedVoter,
+                'notFound' => true,
                 'searchedNik' => $inputNik,
+                'whatsappUrl' => $whatsappUrl,
             ]);
+
+        } catch (Throwable $e) {
+            Log::error('Error pada pencarian DPT: ' . $e->getMessage(), [
+                'nik' => $inputNik,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', 'Terjadi kendala teknis pada sistem pencarian. Silakan coba beberapa saat lagi.');
         }
-
-        // 4. Jika Pemilih Tidak Ditemukan -> Siapkan Tombol WhatsApp Panitia
-        $whatsappMessage = rawurlencode("Halo Panitia Pilkel Desa Pikat, NIK saya ({$inputNik}) belum terdaftar dalam DPT. Mohon dibantu pengecekannya.");
-        $whatsappUrl = "https://wa.me/6281234567890?text={$whatsappMessage}";
-
-        return view('welcome', [
-            'notFound' => true,
-            'searchedNik' => $inputNik,
-            'whatsappUrl' => $whatsappUrl,
-        ]);
     }
 
     /**
