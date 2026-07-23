@@ -39,6 +39,14 @@
         }
         .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
 
+        /* Shake animation for validation error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
         /* Radial dot pattern overlay */
         .dot-pattern {
             background-image: radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px);
@@ -122,14 +130,26 @@
                     <!-- Realtime Feedback -->
                     <div id="realtimeFeedback" class="mt-1.5 text-xs font-medium hidden"></div>
 
-                    <!-- Validation Error -->
-                    @error('nik')
-                        <p class="mt-1.5 text-xs text-red-600 font-medium flex items-center">
-                            <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Client-Side Validation Error (Komponen Tailwind) -->
+                    <div id="clientError" class="mt-3 hidden">
+                        <div class="flex items-start p-3 rounded-lg bg-red-50 border border-red-200">
+                            <svg class="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            {{ $message }}
-                        </p>
+                            <span id="clientErrorMsg" class="text-xs font-semibold text-red-700"></span>
+                        </div>
+                    </div>
+
+                    <!-- Server-Side Validation Error (Laravel) -->
+                    @error('nik')
+                        <div class="mt-3">
+                            <div class="flex items-start p-3 rounded-lg bg-red-50 border border-red-200">
+                                <svg class="w-4 h-4 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="text-xs font-semibold text-red-700">{{ $message }}</span>
+                            </div>
+                        </div>
                     @enderror
                 </div>
 
@@ -258,12 +278,35 @@
             const nikInput       = document.getElementById('nik');
             const nikCounter     = document.getElementById('nikCounter');
             const feedback       = document.getElementById('realtimeFeedback');
+            const clientError    = document.getElementById('clientError');
+            const clientErrorMsg = document.getElementById('clientErrorMsg');
             const searchForm     = document.getElementById('searchForm');
             const submitBtn      = document.getElementById('submitBtn');
             const btnText        = document.getElementById('btnText');
             const btnLoading     = document.getElementById('btnLoading');
 
-            // ── Validasi Realtime NIK ──
+            // ── Helper: Tampilkan Error ──
+            function showError(message) {
+                clientErrorMsg.textContent = message;
+                clientError.classList.remove('hidden');
+                // Tambah border merah & shake pada input
+                nikInput.classList.add('border-red-400', 'bg-red-50');
+                nikInput.classList.remove('border-gray-300', 'bg-gray-50');
+                nikInput.classList.add('animate-shake');
+                setTimeout(function() {
+                    nikInput.classList.remove('animate-shake');
+                }, 400);
+            }
+
+            // ── Helper: Sembunyikan Error ──
+            function clearError() {
+                clientError.classList.add('hidden');
+                clientErrorMsg.textContent = '';
+                nikInput.classList.remove('border-red-400', 'bg-red-50');
+                nikInput.classList.add('border-gray-300', 'bg-gray-50');
+            }
+
+            // ── Validasi Realtime NIK (saat mengetik) ──
             function updateValidation() {
                 // Filter hanya angka, maksimal 16 digit
                 let val = nikInput.value.replace(/\D/g, '');
@@ -272,6 +315,9 @@
 
                 const len = val.length;
                 nikCounter.textContent = len + ' / 16';
+
+                // Hapus error saat user mulai mengetik ulang
+                clearError();
 
                 if (len === 0) {
                     nikCounter.className = 'text-xs font-semibold text-gray-400';
@@ -295,16 +341,39 @@
                 updateValidation();
             }
 
-            // ── Loading State saat Submit ──
+            // ══════════════════════════════════════════
+            // VALIDASI SAAT TOMBOL DIKLIK (3 ATURAN)
+            // ══════════════════════════════════════════
             if (searchForm) {
                 searchForm.addEventListener('submit', function (e) {
-                    if (nikInput.value.replace(/\D/g, '').length !== 16) {
+                    const rawValue = nikInput.value;
+                    const cleanValue = rawValue.replace(/\D/g, '');
+
+                    // Aturan 1: Wajib diisi
+                    if (rawValue.trim() === '') {
                         e.preventDefault();
+                        showError('Nomor Induk Kependudukan (NIK) wajib diisi.');
                         nikInput.focus();
                         return false;
                     }
 
-                    // Tampilkan loading spinner, disable tombol
+                    // Aturan 2: Hanya angka
+                    if (/\D/.test(rawValue)) {
+                        e.preventDefault();
+                        showError('NIK hanya boleh berisi karakter angka (0-9).');
+                        nikInput.focus();
+                        return false;
+                    }
+
+                    // Aturan 3: Tepat 16 digit
+                    if (cleanValue.length !== 16) {
+                        e.preventDefault();
+                        showError('NIK harus tepat 16 digit angka. Saat ini baru ' + cleanValue.length + ' digit.');
+                        nikInput.focus();
+                        return false;
+                    }
+
+                    // ── Semua validasi lolos → Tampilkan loading state ──
                     submitBtn.disabled = true;
                     btnText.classList.add('hidden');
                     btnLoading.classList.remove('hidden');
