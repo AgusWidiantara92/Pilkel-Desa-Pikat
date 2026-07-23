@@ -128,7 +128,7 @@ class VoterSheetImport implements
                     'dusun' => $alamat,
                     'tps_id' => $tps->id,
                     'status' => 'aktif',
-                    'keterangan' => 'Imported via Excel',
+                    'keterangan' => null,
                 ]
             );
         }

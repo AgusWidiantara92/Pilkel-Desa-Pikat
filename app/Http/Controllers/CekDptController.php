@@ -87,9 +87,20 @@ class CekDptController extends Controller
                     'keterangan'       => $voter->keterangan ?? 'Terdaftar dalam DPT',
                 ];
 
+                // Siapkan link WhatsApp jika statusnya TMS (untuk klarifikasi)
+                $whatsappUrl = null;
+                if ($voter->status === 'tms') {
+                    $whatsappMessage = rawurlencode(
+                        "Halo Panitia Pilkel Desa Pikat, NIK saya ({$voter->nik}) "
+                        . "terdaftar dengan status Tidak Memenuhi Syarat (TMS). Mohon bantuan klarifikasinya."
+                    );
+                    $whatsappUrl = "https://wa.me/6282145568591?text={$whatsappMessage}";
+                }
+
                 return view('welcome', [
                     'voter'       => $maskedVoter,
                     'searchedNik' => $inputNik,
+                    'whatsappUrl' => $whatsappUrl,
                 ]);
             }
 
@@ -101,7 +112,7 @@ class CekDptController extends Controller
                 "Halo Panitia Pilkel Desa Pikat, NIK saya ({$inputNik}) "
                 . "belum terdaftar dalam DPT. Mohon dibantu pengecekannya."
             );
-            $whatsappUrl = "https://wa.me/6281234567890?text={$whatsappMessage}";
+            $whatsappUrl = "https://wa.me/6282145568591?text={$whatsappMessage}";
 
             return view('welcome', [
                 'notFound'    => true,
