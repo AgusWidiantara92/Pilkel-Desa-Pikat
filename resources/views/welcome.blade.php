@@ -65,11 +65,9 @@
 
         <!-- Konten Header -->
         <div class="relative z-10 flex flex-col items-center text-center">
-            <!-- Logo Desa — Lingkaran Putih -->
-            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white shadow-lg flex items-center justify-center mb-5 ring-4 ring-white/20">
-                <svg class="w-10 h-10 sm:w-12 sm:h-12 text-red-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
+            <!-- Logo Desa -->
+            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white shadow-lg flex items-center justify-center mb-5 ring-4 ring-white/20 overflow-hidden p-2">
+                <img src="{{ asset('logo.png') }}" alt="Logo Pilkel Desa Pikat" class="w-full h-full object-contain rounded-full">
             </div>
 
             <!-- Judul Utama -->
