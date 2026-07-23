@@ -144,26 +144,29 @@ class CekDptController extends Controller
     }
 
     /**
-     * Masking Nama: Tampilkan huruf pertama setiap kata, sisanya bintang.
+     * Masking Nama: Tampilkan semua kata kecuali kata terakhir yang di-mask.
      *
-     * Contoh: I Wayan Sudiarta → I W***** S*******
-     * Kata ≤ 2 huruf tidak di-mask (misal: "I", "Ni")
+     * Contoh: I Wayan Sudiarta → I Wayan S***
+     * Contoh: Ni Luh Putu Sari → Ni Luh Putu S***
+     * Jika nama hanya 1 kata: Sudiarta → S***
      */
     private function maskName(string $name): string
     {
         $words = explode(' ', trim($name));
+        $count = count($words);
 
-        $maskedWords = array_map(function ($word) {
-            $length = mb_strlen($word);
+        // Jika hanya 1 kata, mask langsung
+        if ($count === 1) {
+            return mb_substr($words[0], 0, 1) . '***';
+        }
 
-            // Kata pendek (≤ 2 karakter) tidak perlu dimask
-            if ($length <= 2) {
-                return $word;
-            }
+        // Tampilkan semua kata kecuali kata terakhir
+        // Kata terakhir: tampilkan huruf pertama + ***
+        $lastWord = array_pop($words);
+        $maskedLast = mb_substr($lastWord, 0, 1) . '***';
 
-            return mb_substr($word, 0, 1) . str_repeat('*', $length - 1);
-        }, $words);
+        $words[] = $maskedLast;
 
-        return implode(' ', $maskedWords);
+        return implode(' ', $words);
     }
 }
