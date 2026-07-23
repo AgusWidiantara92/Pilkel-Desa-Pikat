@@ -201,31 +201,31 @@
                         <!-- Data Pemilih -->
                         <div class="bg-white rounded-xl border border-green-100 divide-y divide-green-50">
                             <!-- Nama -->
-                            <div class="flex justify-between items-center px-4 py-3">
-                                <span class="text-xs text-gray-500 font-medium">Nama</span>
-                                <span class="text-sm font-bold text-gray-900">{{ $voter['nama_masked'] }}</span>
+                            <div class="flex justify-between items-start gap-4 px-4 py-3">
+                                <span class="text-xs text-gray-500 font-medium flex-shrink-0 pt-0.5">Nama</span>
+                                <span class="text-sm font-bold text-gray-900 text-right break-words max-w-[70%]">{{ $voter['nama_masked'] }}</span>
                             </div>
                             <!-- NIK -->
-                            <div class="flex justify-between items-center px-4 py-3">
-                                <span class="text-xs text-gray-500 font-medium">NIK</span>
-                                <span class="text-sm font-bold text-gray-900 font-mono tracking-wide">{{ $voter['nik_masked'] }}</span>
+                            <div class="flex justify-between items-start gap-4 px-4 py-3">
+                                <span class="text-xs text-gray-500 font-medium flex-shrink-0 pt-0.5">NIK</span>
+                                <span class="text-sm font-bold text-gray-900 font-mono tracking-wide text-right break-all max-w-[70%]">{{ $voter['nik_masked'] }}</span>
                             </div>
                             <!-- Nomor TPS -->
-                            <div class="flex justify-between items-center px-4 py-3">
-                                <span class="text-xs text-gray-500 font-medium">Nomor TPS</span>
-                                <span class="text-sm font-extrabold text-green-700 bg-green-100 px-3 py-1 rounded-lg">
+                            <div class="flex justify-between items-center gap-4 px-4 py-3">
+                                <span class="text-xs text-gray-500 font-medium flex-shrink-0">Nomor TPS</span>
+                                <span class="text-sm font-extrabold text-green-700 bg-green-100 px-3 py-1 rounded-lg flex-shrink-0">
                                     {{ $voter['nomor_tps'] }}
                                 </span>
                             </div>
                             <!-- Banjar / Dusun -->
-                            <div class="flex justify-between items-center px-4 py-3">
-                                <span class="text-xs text-gray-500 font-medium">Banjar / Dusun</span>
-                                <span class="text-sm font-semibold text-gray-800">{{ $voter['dusun'] }}</span>
+                            <div class="flex justify-between items-start gap-4 px-4 py-3">
+                                <span class="text-xs text-gray-500 font-medium flex-shrink-0 pt-0.5">Banjar / Dusun</span>
+                                <span class="text-sm font-semibold text-gray-800 text-right break-words max-w-[70%]">{{ $voter['dusun'] }}</span>
                             </div>
                             <!-- Lokasi TPS -->
-                            <div class="flex justify-between items-center px-4 py-3">
-                                <span class="text-xs text-gray-500 font-medium">Lokasi TPS</span>
-                                <span class="text-sm font-semibold text-gray-800 text-right">{{ $voter['nama_lokasi_tps'] }}</span>
+                            <div class="flex justify-between items-start gap-4 px-4 py-3">
+                                <span class="text-xs text-gray-500 font-medium flex-shrink-0 pt-0.5">Lokasi TPS</span>
+                                <span class="text-sm font-semibold text-gray-800 text-right break-words max-w-[70%]">{{ $voter['nama_lokasi_tps'] }}</span>
                             </div>
                         </div>
 

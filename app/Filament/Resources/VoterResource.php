@@ -6,20 +6,18 @@ use App\Filament\Resources\VoterResource\Pages;
 use App\Models\Tps;
 use App\Models\Voter;
 use Filament\Forms;
-use Filament\Schemas\Schema;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
-use BackedEnum;
 
 class VoterResource extends Resource
 {
     protected static ?string $model = Voter::class;
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Kependudukan & DPT';
+    protected static ?string $navigationGroup = 'Kependudukan & DPT';
 
     protected static ?string $navigationLabel = 'Data Pemilih (DPT)';
 
@@ -29,10 +27,10 @@ class VoterResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function form(Schema $schema): Schema
+    public static function form(Form $form): Form
     {
-        return $schema
-            ->components([
+        return $form
+            ->schema([
                 Forms\Components\TextInput::make('nkk')
                     ->label('Nomor Kartu Keluarga (NKK)')
                     ->required()

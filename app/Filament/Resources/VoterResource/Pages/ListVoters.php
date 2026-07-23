@@ -8,6 +8,7 @@ use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
@@ -32,7 +33,7 @@ class ListVoters extends ListRecords
                         ->required(),
                 ])
                 ->action(function (array $data): void {
-                    $filePath = storage_path('app/' . $data['attachment']);
+                    $filePath = Storage::disk('local')->path($data['attachment']);
 
                     try {
                         $import = new VotersImport();

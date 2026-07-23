@@ -45,8 +45,8 @@ class DptSearchController extends Controller
             // 3. Jika Pemilih Ditemukan
             if ($voter) {
                 $maskedVoter = [
-                    'nik_masked' => $this->maskNik($voter->nik),
-                    'nama_masked' => $this->maskName($voter->nama),
+                    'nik_masked' => $voter->nik,
+                    'nama_masked' => $voter->nama,
                     'dusun' => $voter->dusun ?? 'Desa Pikat',
                     'nomor_tps' => $voter->tps->nomor_tps ?? 'TPS -',
                     'nama_lokasi_tps' => $voter->tps->nama_lokasi ?? 'Lokasi TPS',

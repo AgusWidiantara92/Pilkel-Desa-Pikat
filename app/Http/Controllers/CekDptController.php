@@ -76,10 +76,10 @@ class CekDptController extends Controller
             // 4. HASIL: PEMILIH DITEMUKAN
             // ──────────────────────────────────────────
             if ($voter) {
-                // Masking data sensitif sebelum dikirim ke view
+                // Tampilkan data pemilih tanpa sensor
                 $maskedVoter = [
-                    'nik_masked'       => $this->maskNik($voter->nik),
-                    'nama_masked'      => $this->maskName($voter->nama),
+                    'nik_masked'       => $voter->nik,
+                    'nama_masked'      => $voter->nama,
                     'dusun'            => $voter->dusun ?? 'Desa Pikat',
                     'nomor_tps'        => $voter->tps->nomor_tps ?? 'TPS -',
                     'nama_lokasi_tps'  => $voter->tps->nama_lokasi ?? 'Lokasi TPS',
