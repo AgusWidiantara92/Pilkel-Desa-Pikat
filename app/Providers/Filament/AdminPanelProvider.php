@@ -29,12 +29,14 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('DPT Pilkel Desa Pikat')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => Color::Indigo,
                 'danger' => Color::Rose,
                 'warning' => Color::Amber,
-                'success' => Color::Green,
+                'success' => Color::Emerald,
                 'info' => Color::Sky,
-                ])
+            ])
+            ->font('Outfit')
+            ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

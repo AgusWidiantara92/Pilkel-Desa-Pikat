@@ -27,6 +27,13 @@ class VoterResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'nama';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['nama', 'nik', 'nkk'];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -180,7 +187,7 @@ class VoterResource extends Resource
 
                 Tables\Filters\SelectFilter::make('dusun')
                     ->label('Filter Dusun')
-                    ->options(fn () => Voter::whereNotNull('dusun')->distinct()->pluck('dusun', 'dusun')->toArray()),
+                    ->options(fn () => cache()->remember('voter_dusun_options', 600, fn () => Voter::whereNotNull('dusun')->distinct()->pluck('dusun', 'dusun')->toArray())),
 
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status Pemilih')
@@ -199,7 +206,8 @@ class VoterResource extends Resource
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn () => auth()->user()?->isAdmin()),
                 ]),
-            ]);
+            ])
+            ->defaultSort('nama', 'asc');
     }
 
     public static function getPages(): array
