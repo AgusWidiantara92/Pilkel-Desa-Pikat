@@ -17,7 +17,7 @@ class VoterResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Kependudukan & DPT';
+    protected static ?string $navigationGroup = 'Data Pemilihan (Pilkel)';
 
     protected static ?string $navigationLabel = 'Data Pemilih (DPT)';
 

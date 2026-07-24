@@ -16,7 +16,7 @@ class TpsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Data Pemilihan (Pilkel)';
 
     protected static ?string $navigationLabel = 'Data TPS';
 
@@ -24,7 +24,7 @@ class TpsResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Data TPS';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
