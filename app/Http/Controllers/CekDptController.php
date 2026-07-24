@@ -17,7 +17,21 @@ class CekDptController extends Controller
      */
     public function index(): View
     {
-        return view('welcome');
+        $data = [];
+        if (session()->has('voter')) {
+            $data['voter'] = session('voter');
+        }
+        if (session()->has('searchedNik')) {
+            $data['searchedNik'] = session('searchedNik');
+        }
+        if (session()->has('whatsappUrl')) {
+            $data['whatsappUrl'] = session('whatsappUrl');
+        }
+        if (session()->has('notFound')) {
+            $data['notFound'] = session('notFound');
+        }
+
+        return view('welcome', $data);
     }
 
     /**
@@ -97,7 +111,7 @@ class CekDptController extends Controller
                     $whatsappUrl = "https://wa.me/6282145568591?text={$whatsappMessage}";
                 }
 
-                return view('welcome', [
+                return redirect()->route('home')->with([
                     'voter'       => $maskedVoter,
                     'searchedNik' => $inputNik,
                     'whatsappUrl' => $whatsappUrl,
@@ -114,7 +128,7 @@ class CekDptController extends Controller
             );
             $whatsappUrl = "https://wa.me/6282145568591?text={$whatsappMessage}";
 
-            return view('welcome', [
+            return redirect()->route('home')->with([
                 'notFound'    => true,
                 'searchedNik' => $inputNik,
                 'whatsappUrl' => $whatsappUrl,
