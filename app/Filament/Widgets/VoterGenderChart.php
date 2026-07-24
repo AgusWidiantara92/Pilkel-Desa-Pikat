@@ -13,10 +13,19 @@ class VoterGenderChart extends ChartWidget
     
     protected static string $type = 'doughnut';
 
+    protected static bool $isLazy = true;
+
     protected function getData(): array
     {
-        $maleCount = Voter::where('jenis_kelamin', 'L')->count();
-        $femaleCount = Voter::where('jenis_kelamin', 'P')->count();
+        $genderStats = cache()->remember('dashboard_gender_stats', 300, function () {
+            return [
+                'male' => Voter::where('jenis_kelamin', 'L')->count(),
+                'female' => Voter::where('jenis_kelamin', 'P')->count(),
+            ];
+        });
+
+        $maleCount = $genderStats['male'];
+        $femaleCount = $genderStats['female'];
 
         return [
             'datasets' => [

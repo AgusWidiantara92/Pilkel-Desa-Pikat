@@ -11,12 +11,23 @@ class StatsOverviewWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    protected static bool $isLazy = true;
+
     protected function getStats(): array
     {
-        $totalPemilih = Voter::count();
-        $pemilihAktif = Voter::where('status', 'aktif')->count();
-        $pemilihTms = Voter::where('status', 'tms')->count();
-        $totalTps = Tps::count();
+        $stats = cache()->remember('dashboard_stats', 300, function () {
+            return [
+                'totalPemilih' => Voter::count(),
+                'pemilihAktif' => Voter::where('status', 'aktif')->count(),
+                'pemilihTms' => Voter::where('status', 'tms')->count(),
+                'totalTps' => Tps::count(),
+            ];
+        });
+
+        $totalPemilih = $stats['totalPemilih'];
+        $pemilihAktif = $stats['pemilihAktif'];
+        $pemilihTms = $stats['pemilihTms'];
+        $totalTps = $stats['totalTps'];
 
         return [
             Stat::make('Total DPT Terdaftar', number_format($totalPemilih, 0, ',', '.'))

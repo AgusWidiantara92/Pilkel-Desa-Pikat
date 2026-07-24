@@ -13,12 +13,20 @@ class TpsVoterChart extends ChartWidget
 
     protected static string $type = 'bar';
 
+    protected static bool $isLazy = true;
+
     protected function getData(): array
     {
-        $tpsData = Tps::withCount('voters')->get();
+        $chartData = cache()->remember('dashboard_tps_chart_data', 300, function () {
+            $tpsData = Tps::withCount('voters')->get();
+            return [
+                'labels' => $tpsData->map(fn ($tps) => "TPS {$tps->nomor_tps}")->toArray(),
+                'counts' => $tpsData->map(fn ($tps) => $tps->voters_count)->toArray(),
+            ];
+        });
 
-        $labels = $tpsData->map(fn ($tps) => "TPS {$tps->nomor_tps}")->toArray();
-        $counts = $tpsData->map(fn ($tps) => $tps->voters_count)->toArray();
+        $labels = $chartData['labels'];
+        $counts = $chartData['counts'];
 
         return [
             'datasets' => [
